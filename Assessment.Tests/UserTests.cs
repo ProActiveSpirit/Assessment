@@ -45,21 +45,19 @@ namespace Assessment.Tests
                 logger.Object
             );
 
+            // Pass the mocked UserManager to the controller
             _controller = new UserController(_mockUserManager.Object);
         }
-
+        
         [Fact]
         public async Task GetByEmail_ReturnsUser_WhenExists()
         {
-            
             var user = new IdentityUser { UserName = "user1", Email = "user1@example.com" };
             _mockUserManager.Setup(m => m.FindByEmailAsync("user1@example.com"))
                             .ReturnsAsync(user);
 
-            
             var result = await _controller.GetUserByEmail("user1@example.com");
 
-            
             var okResult = result.Result as OkObjectResult;
             Assert.NotNull(okResult);
             Assert.Equal(200, okResult.StatusCode);
@@ -72,14 +70,11 @@ namespace Assessment.Tests
         [Fact]
         public async Task GetByEmail_ReturnsNotFound_WhenNotExists()
         {
-            
             _mockUserManager.Setup(m => m.FindByEmailAsync(It.IsAny<string>()))
                             .ReturnsAsync((IdentityUser?)null);
 
-            
             var result = await _controller.GetUserByEmail("nonexistent@example.com");
 
-            
             var notFoundResult = result.Result as NotFoundObjectResult;
             Assert.NotNull(notFoundResult);
             Assert.Equal(404, notFoundResult.StatusCode);
@@ -88,7 +83,6 @@ namespace Assessment.Tests
         [Fact]
         public async Task Create_ReturnsBadRequest_WhenInvalid()
         {
-            
             var user = new IdentityUser { UserName = "user1", Email = "user1@example.com" };
             var identityErrors = new List<IdentityError>
             {
@@ -99,10 +93,8 @@ namespace Assessment.Tests
             _mockUserManager.Setup(m => m.CreateAsync(It.IsAny<IdentityUser>(), It.IsAny<string>()))
                             .ReturnsAsync(failedResult);
 
-            
             var result = await _controller.CreateUser(user);
 
-            
             var badRequestResult = result as BadRequestObjectResult;
             Assert.NotNull(badRequestResult);
             Assert.Equal(400, badRequestResult.StatusCode);
