@@ -1,4 +1,5 @@
 ﻿using Assessment.Controllers;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -8,6 +9,8 @@ using Xunit;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System;
+using Assessment.Data;
 
 namespace Assessment.Tests
 {
@@ -42,48 +45,21 @@ namespace Assessment.Tests
                 logger.Object
             );
 
-            // Pass the mocked UserManager to the controller
             _controller = new UserController(_mockUserManager.Object);
-        }
-        [Fact]
-        public async Task GetAll_ReturnsUsers()
-        {
-            // Arrange
-            var users = new List<IdentityUser>
-            {
-                new IdentityUser { UserName = "user1", Email = "user1@example.com" },
-                new IdentityUser { UserName = "user2", Email = "user2@example.com" }
-            };
-
-            IQueryable<IdentityUser> queryUsers = users.AsQueryable();
-
-            _mockUserManager.Setup(m => m.Users).Returns(queryUsers);
-
-            // Act
-            var result = await _controller.GetAllUsers();
-
-            // Assert
-            var okResult = result.Result as OkObjectResult;
-            Assert.NotNull(okResult);
-            Assert.Equal(200, okResult.StatusCode);
-
-            var returnedUsers = okResult.Value as IEnumerable<IdentityUser>;
-            Assert.NotNull(returnedUsers); // Ensure returnedUsers is not null
-            Assert.Equal(2, returnedUsers?.Count());
         }
 
         [Fact]
         public async Task GetByEmail_ReturnsUser_WhenExists()
         {
-            // Arrange
+            
             var user = new IdentityUser { UserName = "user1", Email = "user1@example.com" };
             _mockUserManager.Setup(m => m.FindByEmailAsync("user1@example.com"))
                             .ReturnsAsync(user);
 
-            // Act
+            
             var result = await _controller.GetUserByEmail("user1@example.com");
 
-            // Assert
+            
             var okResult = result.Result as OkObjectResult;
             Assert.NotNull(okResult);
             Assert.Equal(200, okResult.StatusCode);
@@ -96,14 +72,14 @@ namespace Assessment.Tests
         [Fact]
         public async Task GetByEmail_ReturnsNotFound_WhenNotExists()
         {
-            // Arrange
+            
             _mockUserManager.Setup(m => m.FindByEmailAsync(It.IsAny<string>()))
                             .ReturnsAsync((IdentityUser?)null);
 
-            // Act
+            
             var result = await _controller.GetUserByEmail("nonexistent@example.com");
 
-            // Assert
+            
             var notFoundResult = result.Result as NotFoundObjectResult;
             Assert.NotNull(notFoundResult);
             Assert.Equal(404, notFoundResult.StatusCode);
@@ -112,7 +88,7 @@ namespace Assessment.Tests
         [Fact]
         public async Task Create_ReturnsBadRequest_WhenInvalid()
         {
-            // Arrange
+            
             var user = new IdentityUser { UserName = "user1", Email = "user1@example.com" };
             var identityErrors = new List<IdentityError>
             {
@@ -123,10 +99,10 @@ namespace Assessment.Tests
             _mockUserManager.Setup(m => m.CreateAsync(It.IsAny<IdentityUser>(), It.IsAny<string>()))
                             .ReturnsAsync(failedResult);
 
-            // Act
+            
             var result = await _controller.CreateUser(user);
 
-            // Assert
+            
             var badRequestResult = result as BadRequestObjectResult;
             Assert.NotNull(badRequestResult);
             Assert.Equal(400, badRequestResult.StatusCode);

@@ -21,14 +21,12 @@ namespace Assessment.Tests
 
         public void Teardown()
         {
-            // Dispose of the DbContext after each test
             _context.Dispose();
         }
 
         [Fact]
         public void CanAddUserToDatabase()
         {
-            // Arrange
             Setup(); // Call setup explicitly since XUnit does not have [SetUp]
             var user = new IdentityUser
             {
@@ -36,12 +34,10 @@ namespace Assessment.Tests
                 Email = "testuser@example.com"
             };
 
-            // Act
             _context.Users.Add(user);
             _context.SaveChanges();
 
-            // Assert
-            Assert.Equal(1, _context.Users.Count()); // Ensure the user was added
+            Assert.Equal(1, _context.Users.Count());
             Teardown(); // Call teardown explicitly
         }
     }
